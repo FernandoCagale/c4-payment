@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: c4-payment
+    labels:
+      app: c4-payment
+  spec:
+    ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: c4-payment
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: c4-payment-env
+    labels:
+      app: c4-payment
+  data:
+    AMQP_URI: "amqp://guest:guest@rabbitmq:5672"
+    MONGO_ADDRS: "mongodb.database.svc.cluster.local"
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: c4-payment
+    labels:
+      version: v1
+      app: c4-payment
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          version: v1
+          app: c4-payment
+      spec:
+        containers:
+        - name: c4-payment
+          image: fernandocagale/c4-payment
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 8080
+          envFrom:
+          - configMapRef:
+              name: c4-payment-env
+- apiVersion: networking.istio.io/v1alpha3
+  kind: VirtualService
+  metadata:
+    name: c4-payment-virtual-service
+  spec:
+    hosts:
+    - "*"
+    gateways:
+    - application-gateway-c4
+    http:
+    - match:
+      - uri:
+          prefix: /payment
+      route:
+      - destination:
+          host: c4-payment
+          port:
+            number: 8080
