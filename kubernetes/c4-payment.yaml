@@ -24,6 +24,7 @@ items:
   data:
     AMQP_URI: "amqp://guest:guest@rabbitmq:5672"
     MONGO_ADDRS: "mongodb.database.svc.cluster.local"
+    PORT: "8080"
 - apiVersion: extensions/v1beta1
   kind: Deployment
   metadata:
