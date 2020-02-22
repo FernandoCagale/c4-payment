@@ -8,9 +8,9 @@ import (
 )
 
 type SystemRoutes struct {
-	healthHandler *handlers.HealthHandler
-	paymentHandler  *handlers.PaymentHandler
-	paymentEvent    *event.PaymentEvent
+	healthHandler  *handlers.HealthHandler
+	paymentHandler *handlers.PaymentHandler
+	paymentEvent   *event.PaymentEvent
 }
 
 func (routes *SystemRoutes) MakeEvents() {
@@ -33,8 +33,8 @@ func (routes *SystemRoutes) MakeHandlers() *mux.Router {
 
 func NewSystem(healthHandler *handlers.HealthHandler, paymentHandler *handlers.PaymentHandler, paymentEvent *event.PaymentEvent) *SystemRoutes {
 	return &SystemRoutes{
-		healthHandler: healthHandler,
-		paymentHandler:  paymentHandler,
-		paymentEvent:    paymentEvent,
+		healthHandler:  healthHandler,
+		paymentHandler: paymentHandler,
+		paymentEvent:   paymentEvent,
 	}
 }

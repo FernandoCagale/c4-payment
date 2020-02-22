@@ -20,15 +20,6 @@ func New() *EventRepository {
 	}
 }
 
-func (o *EventRepository) getConfig() (config amqp.Config) {
-	return amqp.NewDurablePubSubConfig(o.uri, nil)
-}
-
-func (o *EventRepository) getConfigQueue(queue string) (config amqp.Config) {
-	queueConstant := amqp.GenerateQueueNameConstant(queue)
-	return amqp.NewDurablePubSubConfig(o.uri, queueConstant)
-}
-
 func (o *EventRepository) message(payload interface{}) (*message.Message, error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -39,8 +30,9 @@ func (o *EventRepository) message(payload interface{}) (*message.Message, error)
 	return message.NewMessage(watermill.NewUUID(), body), nil
 }
 
-func (o *EventRepository) Subscribe(topic, queue string) (<-chan *message.Message, error) {
-	subscriber, err := amqp.NewSubscriber(o.getConfigQueue(queue), watermill.NewStdLogger(false, false))
+func (o *EventRepository) SubscribeExchange(topic, queue string) (<-chan *message.Message, error) {
+	amqpConfig := amqp.NewDurablePubSubConfig(o.uri, amqp.GenerateQueueNameConstant(queue))
+	subscriber, err := amqp.NewSubscriber(amqpConfig, watermill.NewStdLogger(false, false))
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err
@@ -49,8 +41,39 @@ func (o *EventRepository) Subscribe(topic, queue string) (<-chan *message.Messag
 	return subscriber.Subscribe(context.Background(), topic)
 }
 
-func (o *EventRepository) Publish(topic string, payload interface{}) (error) {
-	publisher, err := amqp.NewPublisher(o.getConfig(), watermill.NewStdLogger(false, false), )
+func (o *EventRepository) SubscribeQueue(topic string) (<-chan *message.Message, error) {
+	amqpConfig := amqp.NewDurableQueueConfig(o.uri)
+	subscriber, err := amqp.NewSubscriber(amqpConfig, watermill.NewStdLogger(false, false))
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+
+	return subscriber.Subscribe(context.Background(), topic)
+}
+
+func (o *EventRepository) PublishExchange(topic string, payload interface{}) (error) {
+	amqpConfig := amqp.NewDurablePubSubConfig(o.uri, nil)
+	publisher, err := amqp.NewPublisher(amqpConfig, watermill.NewStdLogger(false, false), )
+	if err != nil {
+		return err
+	}
+
+	msg, err := o.message(payload)
+	if err != nil {
+		return err
+	}
+
+	err = publisher.Publish(topic, msg)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *EventRepository) PublishQueue(topic string, payload interface{}) (error) {
+	amqpConfig := amqp.NewDurableQueueConfig(o.uri)
+	publisher, err := amqp.NewPublisher(amqpConfig, watermill.NewStdLogger(false, false), )
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,8 @@ import (
 	"github.com/FernandoCagale/c4-payment/pkg/entity"
 )
 
+const QUEUE = "notify.payment"
+
 type PaymentUseCase struct {
 	repo  Repository
 	event event.Event
@@ -43,7 +45,9 @@ func (usecase *PaymentUseCase) Create(e *entity.Ecommerce) error {
 		return err
 	}
 
-	//TODO notify
+	if err := usecase.event.PublishQueue(QUEUE, customer); err != nil {
+		return err
+	}
 
 	return nil
 }

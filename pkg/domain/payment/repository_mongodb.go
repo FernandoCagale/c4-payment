@@ -4,6 +4,7 @@ import (
 	"github.com/FernandoCagale/c4-payment/internal/errors"
 	"github.com/FernandoCagale/c4-payment/pkg/entity"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -49,7 +50,16 @@ func (repo *MongodbRepository) FindById(ID string) (payment *entity.Customer, er
 func (repo *MongodbRepository) Create(e *entity.Customer) (err error) {
 	coll := repo.session.DB(DATABASE).C(COLLECTION)
 
-	err = coll.Insert(e)
+	change, err := repo.FindById(e.Code)
+	switch err {
+	case errors.ErrNotFound:
+		err = coll.Insert(e)
+	case nil:
+		err = coll.Update(change, bson.M{"$push": bson.M{"payments": bson.M{"$each": e.Payments}}})
+	default:
+		return errors.ErrInternalServer
+	}
+
 	if err != nil {
 		if mgo.IsDup(err) {
 			return errors.ErrConflict

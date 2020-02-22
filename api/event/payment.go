@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	TOPIC = "topic.ecommerce"
-	QUEUE = "payment"
+	EXCHANGE = "ecommerce"
+	QUEUE    = "payment"
 )
 
 type PaymentEvent struct {
@@ -27,7 +27,7 @@ func NewPayment(usecase payment.UseCase, event event.Event) *PaymentEvent {
 }
 
 func (eventPayment *PaymentEvent) ProcessPayment() {
-	messages, err := eventPayment.event.Subscribe(TOPIC, QUEUE)
+	messages, err := eventPayment.event.SubscribeExchange(EXCHANGE, QUEUE)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

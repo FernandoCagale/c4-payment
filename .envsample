@@ -1,3 +1,6 @@
 AMQP_URI=amqp://guest:guest@localhost:5672/
 MONGO_ADDRS=127.0.0.1:27017
+MONGO_DATABASE=c4-payment-database
+MONGO_USERNAME=admin
+MONGO_PASSWORD=admin
 PORT=8080

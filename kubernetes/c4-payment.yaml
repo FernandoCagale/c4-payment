@@ -22,10 +22,13 @@ items:
     labels:
       app: c4-payment
   data:
-    AMQP_URI: "amqp://guest:guest@rabbitmq:5672"
-    MONGO_ADDRS: "mongodb.database.svc.cluster.local"
+    AMQP_URI: "amqp://guest:guest@rabbitmq.message.svc.cluster.local:5672/"
+    MONGO_ADDRS: "mongo-payment-mongodb.database.svc.cluster.local"
+    MONGO_DATABASE: "c4-payment-database"
+    MONGO_USERNAME: "admin"
+    MONGO_PASSWORD: "admin"
     PORT: "8080"
-- apiVersion: extensions/v1beta1
+- apiVersion: apps/v1
   kind: Deployment
   metadata:
     name: c4-payment
@@ -34,6 +37,9 @@ items:
       app: c4-payment
   spec:
     replicas: 1
+    selector:
+      matchLabels:
+        app: c4-payment
     template:
       metadata:
         labels:
