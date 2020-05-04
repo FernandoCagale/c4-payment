@@ -26,7 +26,11 @@ func NewPayment(usecase payment.UseCase, event event.Event) *PaymentEvent {
 	}
 }
 
-func (eventPayment *PaymentEvent) ProcessPayment() {
+func (event *PaymentEvent) MakeEvents() {
+	go event.processPayment()
+}
+
+func (eventPayment *PaymentEvent) processPayment() {
 	messages, err := eventPayment.event.SubscribeExchange(EXCHANGE, QUEUE)
 	if err != nil {
 		fmt.Println(err.Error())

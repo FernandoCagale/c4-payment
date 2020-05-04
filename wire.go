@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/FernandoCagale/c4-payment/api/routers"
+	"github.com/FernandoCagale/c4-payment/event"
 	"github.com/FernandoCagale/c4-payment/internal/datastore"
 	"github.com/FernandoCagale/c4-payment/pkg"
 	"github.com/google/wire"
@@ -17,5 +18,10 @@ func SetupApplication(*mgo.Session) (*routers.SystemRoutes, error) {
 
 func SetupMongoDB() (*mgo.Session, error) {
 	wire.Build(datastore.Set)
+	return nil, nil
+}
+
+func SetupEvents(session *mgo.Session) (*event.PaymentEvent, error) {
+	wire.Build(event.Set)
 	return nil, nil
 }
