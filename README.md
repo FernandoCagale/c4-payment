@@ -1,4 +1,6 @@
-**c4-payment - docker**
+# c4-payment [Flow](https://github.com/FernandoCagale/c4-kustomize)
+
+## Dependencies
 
 `Docker Mongodb`
 
@@ -12,20 +14,21 @@ $ docker run --network host --name mongo -d mongo
 $ docker run --network host --name rabbit -d rabbitmq
 ```
 
-`Docker build c4-payment`
+## Build Docker
+
+`build and publish c4-payment`
 
 ```sh
-$   docker build -t c4-payment .
+$   ./scripts/publish.sh
 ```
 
-`Docker c4-payment`
+## Kubernetes [YAML](https://github.com/FernandoCagale/c4-kustomize/tree/master/c4-payment/base)
 
-```sh
-$   docker run -d --name c4-payment -p 8080:8080 c4-payment
-```
+    *   deployment.yaml
+    *   service.yaml
+    *   virtualservice.yaml
 
-**c4-payment - local**
-
+## Running local
 
 ```sh
 $   go mod download
@@ -41,19 +44,6 @@ $   go mod vendor
 $   go get -u github.com/google/wire/cmd/wire
 ```
 
-`generate wire_gen.go`
-
 ```sh
-$   wire
-```
-
-`generate build`
-
-```sh
-$   go build -o bin/application
-```
-
-
-```sh
-$   ./bin/application
+$   ./scripts/start.sh
 ```
