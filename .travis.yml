@@ -1,0 +1,10 @@
+dist: trusty
+
+jobs:
+  include:
+  - stage: build
+    script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker build -t $DOCKER_USERNAME/c4-payment .
+    - docker push $DOCKER_USERNAME/c4-payment
+    if: branch = master
