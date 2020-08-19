@@ -14,22 +14,13 @@ $   ./scripts/publish.sh
 
     *   deployment.yaml
     *   service.yaml
-    *   virtualservice.yaml
 
 # Running local
 
 ### Dependencies [docker-compose](https://github.com/FernandoCagale/c4-kustomize/blob/master/docker-compose.yml)
 
-`Docker Mongodb`
-
 ```sh
-$ docker run --network host --name mongo -d mongo
-```
-
-`Docker Rabbitmq`
-
-```sh
-$ docker run --network host --name rabbit -d rabbitmq
+$   docker-compose up -d
 ```
 
 ### Standard Go Project [Layout](https://github.com/golang-standards/project-layout)
