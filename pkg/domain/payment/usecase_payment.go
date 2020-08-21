@@ -1,22 +1,22 @@
 package payment
 
 import (
+	"github.com/FernandoCagale/c4-payment/internal/broker/producer"
 	"github.com/FernandoCagale/c4-payment/internal/errors"
-	"github.com/FernandoCagale/c4-payment/internal/event"
 	"github.com/FernandoCagale/c4-payment/pkg/entity"
 )
 
-const QUEUE = "notify.payment"
+const TOPIC = "payment.registered"
 
 type PaymentUseCase struct {
-	repo  Repository
-	event event.Event
+	repo     Repository
+	producer producer.Producer
 }
 
-func NewUseCase(repo Repository, event event.Event) *PaymentUseCase {
+func NewUseCase(repo Repository, producer producer.Producer) *PaymentUseCase {
 	return &PaymentUseCase{
-		repo:  repo,
-		event: event,
+		repo:     repo,
+		producer: producer,
 	}
 }
 
@@ -32,7 +32,6 @@ func (usecase *PaymentUseCase) DeleteById(ID string) (err error) {
 	return usecase.repo.DeleteById(ID)
 }
 
-
 func (usecase *PaymentUseCase) Create(e *entity.Ecommerce) error {
 	err := e.Validate()
 	if err != nil {
@@ -45,7 +44,7 @@ func (usecase *PaymentUseCase) Create(e *entity.Ecommerce) error {
 		return err
 	}
 
-	if err := usecase.event.PublishQueue(QUEUE, customer); err != nil {
+	if err := usecase.producer.Producer(TOPIC, customer); err != nil {
 		return err
 	}
 

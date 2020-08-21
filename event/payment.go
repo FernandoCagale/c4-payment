@@ -1,56 +1,19 @@
 package event
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/FernandoCagale/c4-payment/internal/event"
-	"github.com/FernandoCagale/c4-payment/pkg/domain/payment"
-	"github.com/FernandoCagale/c4-payment/pkg/entity"
-	"log"
-)
-
-const (
-	EXCHANGE = "ecommerce"
-	QUEUE    = "payment"
+	"github.com/FernandoCagale/c4-payment/internal/broker/consumer"
 )
 
 type PaymentEvent struct {
-	usecase payment.UseCase
-	event   event.Event
+	consumer consumer.Consumer
 }
 
-func NewPayment(usecase payment.UseCase, event event.Event) *PaymentEvent {
+func NewPayment(consumer consumer.Consumer) *PaymentEvent {
 	return &PaymentEvent{
-		usecase: usecase,
-		event:   event,
+		consumer: consumer,
 	}
 }
 
 func (event *PaymentEvent) MakeEvents() {
-	go event.processPayment()
-}
-
-func (eventPayment *PaymentEvent) processPayment() {
-	messages, err := eventPayment.event.SubscribeExchange(EXCHANGE, QUEUE)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	for msg := range messages {
-		log.Printf("received message: %s, PAYMENT: %s", msg.UUID, string(msg.Payload))
-
-		var ecommerce entity.Ecommerce
-
-		if err := json.Unmarshal(msg.Payload, &ecommerce); err != nil {
-			fmt.Println(err.Error())
-			msg.Nacked()
-		}
-
-		if err = eventPayment.usecase.Create(&ecommerce); err != nil {
-			fmt.Println(err.Error())
-			msg.Nacked()
-		}
-
-		msg.Ack() //TODO x-dead-letter-exchange
-	}
+	go event.consumer.Consumer()
 }
